@@ -3,15 +3,11 @@
 {% set year = version.split('.')[0]|int %}
 {% set update = version.split('.')[1]|int %}
 {% if version.split('.').__len__() == 2 %}
-{%  if update == 0 %}
-{%   set vtag = "%d" % year %}
-{%  else %}
-{%   set vtag = "%d_U%d" % (year, update) %}
-{%  endif %}
+{%  set vtag = "v%d.%d" % (year, update) %}
 {% else %}  # have to take into account for sake of the bot
 {%  set vtag = "malformed_" + version %}
 {% endif %}
-{% set vinterface = (year-2008)*1000 + update %}  # just guess, does not fit the previous versions before 2018
+{% set vinterface = (year-2009)*1000 + 100 + update %}  # just guess, does not fit the previous versions before 2020
 
 {% set winfl = '--make-tool=mingw32-make --build-prefix=vc%VS_MAJOR%' %}
 # overriding -MD flag for issue #36
