@@ -118,7 +118,7 @@ outputs:
         - set CMAKE_GENERATOR_PLATFORM=  # [win]
         - set CMAKE_GENERATOR_TOOLSET=   # [win]
         - cmake {{ cmake_tcm_args }} -DTCM_TEST=ON -DTCM_DIR=ON -S thread_composability_manager -B tcm_test_build
-        - cmake --build tcm_test_build --target {{ tests }} --parallel  # build tests
+        - cmake --build tcm_test_build --parallel  # build tests
         - cd tcm_test_build
         - ctest --output-on-failure
 
