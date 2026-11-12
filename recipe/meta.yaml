@@ -1,4 +1,5 @@
 {% set version = "2023.2.0" %}
+{% set tcm_version = "1.6.0" %}
 
 {% set vmajor = version.split('.')[0]|int %}
 {% set vminor = version.split('.')[1]|int %}
@@ -16,12 +17,13 @@
 # See https://docs.conda.io/projects/conda-build/en/latest/user-guide/environment-variables.html.
 # On non-Windows CMAKE_ARGS already contains CMAKE_INSTALL_PREFIX.
 # CMAKE_PREFIX_PATH is needed to discover libhwloc with PkgConfig.
+# TCM is built as a separate output (tcm), so it is disabled for the TBB outputs.
 {% if win %}
-    {% set cmake_args = "%CMAKE_ARGS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX% -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF" %}
-    {% set cmake_tbb4py_args = "%CMAKE_ARGS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PREFIX% -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF" %}
+    {% set cmake_args = "%CMAKE_ARGS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX% -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
+    {% set cmake_tbb4py_args = "%CMAKE_ARGS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PREFIX% -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
 {% else %}
-    {% set cmake_args = "$CMAKE_ARGS -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF" %}
-    {% set cmake_tbb4py_args = "$CMAKE_ARGS -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF" %}
+    {% set cmake_args = "$CMAKE_ARGS -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
+    {% set cmake_tbb4py_args = "$CMAKE_ARGS -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
 {% endif %}
 
 # Use specific test list agreed with TBB team to cover core functionality on high level.
@@ -61,6 +63,40 @@ requirements:
     - libhwloc
 
 outputs:
+  - name: tcm
+    version: {{ tcm_version }}
+    about:
+      summary: Thread Composability Manager (TCM)
+      license_file:
+        - thread_composability_manager/licensing/LICENSE.txt
+        - thread_composability_manager/licensing/third-party-programs.txt
+    build:
+      script:
+        - set CMAKE_GENERATOR=Ninja      # [win]
+        - set CMAKE_GENERATOR_PLATFORM=  # [win]
+        - set CMAKE_GENERATOR_TOOLSET=   # [win].
+        - cmake -DTCM_TEST=OFF -S thread_composability_manager -B build_tcm
+        - cmake --build build_tcm --parallel
+        - cmake --install build_tcm
+      ignore_run_exports:
+        - winpthreads-devel    # [win]
+        - winpthreads          # [win]
+        - libwinpthread        # [win]
+        - libxml2              # [not win]
+        - libxml2-16           # [not win]
+        - libxml2-devel        # [not win]
+    requirements:
+      build:
+        - {{ compiler('cxx') }}
+        - {{ stdlib("c") }}
+        - ninja                # [win]
+        - make                 # [not win]
+        - cmake
+      host:
+        - libhwloc >=2.5
+        - winpthreads-devel    # [win]
+        - libxml2-devel        # [not win]
+
   - name: tbb
     about:
       summary: TBB Libraries
@@ -88,6 +124,9 @@ outputs:
         - libhwloc
         - winpthreads-devel    # [win]
         - libxml2-devel        # [not win]
+      run:
+        # oneTBB loads TCM dynamically at run time
+        - {{ pin_subpackage('tcm', max_pin='x') }}
     test:
       requires:
         # any python version is ok for sake of testing of shared libraries
