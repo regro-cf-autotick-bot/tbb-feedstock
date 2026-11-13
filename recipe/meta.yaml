@@ -200,7 +200,7 @@ outputs:
         - libxml2-devel        # [not win]
       run:
         # oneTBB loads TCM dynamically at run time
-        - {{ pin_subpackage('tcm', max_pin='x') }}
+        - {{ pin_subpackage('tcm', exact=True) }}
     test:
       requires:
         # any python version is ok for sake of testing of shared libraries
