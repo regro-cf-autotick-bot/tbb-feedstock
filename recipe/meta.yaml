@@ -20,11 +20,11 @@
 # TCM is built as a separate output (tcm), so it is disabled for the TBB outputs.
 {% if win %}
     {% set cmake_args = "%CMAKE_ARGS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX% -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
-    {% set cmake_tcm_args = "%CMAKE_ARGS% -DTCM_INSTALL_VARS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX%" %}
+    {% set cmake_tcm_args = "%CMAKE_ARGS% -DTCM_GENERATE_VARS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX%" %}
     {% set cmake_tbb4py_args = "%CMAKE_ARGS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PREFIX% -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
 {% else %}
     {% set cmake_args = "$CMAKE_ARGS -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
-    {% set cmake_tcm_args = "$CMAKE_ARGS -DTCM_INSTALL_VARS=OFF" %}
+    {% set cmake_tcm_args = "$CMAKE_ARGS -DTCM_GENERATE_VARS=OFF" %}
     {% set cmake_tbb4py_args = "$CMAKE_ARGS -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
 {% endif %}
 
