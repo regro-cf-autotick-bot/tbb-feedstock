@@ -4,7 +4,7 @@
 {% set vmajor = version.split('.')[0]|int %}
 {% set vminor = version.split('.')[1]|int %}
 {% set vpatch = version.split('.')[2]|int %}
-{% set vbinary = vmajor - 2009 %}
+{% set vbinary = 12 %}
 
 {% set vtag = "v" ~ version.replace(".rc", "-rc") %}
 
@@ -155,10 +155,6 @@ outputs:
         - third-party-programs.txt
     build:
       script:
-        - pkg-config --modversion hwloc || echo "hwloc not found by pkg-config"  # [not win]
-        - echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH"  # [not win]
-        - which pkg-config  # [not win]
-        - ls $PREFIX/lib/pkgconfig | grep hwloc # [not win]
         - set CMAKE_GENERATOR=Ninja      # [win]
         - set CMAKE_GENERATOR_PLATFORM=  # [win]
         - set CMAKE_GENERATOR_TOOLSET=   # [win]
