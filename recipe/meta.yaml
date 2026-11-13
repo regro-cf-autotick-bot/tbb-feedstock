@@ -20,11 +20,11 @@
 # TCM is built as a separate output (tcm), so it is disabled for the TBB outputs.
 {% if win %}
     {% set cmake_args = "%CMAKE_ARGS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX% -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
-    {% set cmake_tcm_args = "%CMAKE_ARGS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX%" %}
+    {% set cmake_tcm_args = "%CMAKE_ARGS% -DTCM_INSTALL_VARS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX%" %}
     {% set cmake_tbb4py_args = "%CMAKE_ARGS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PREFIX% -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
 {% else %}
     {% set cmake_args = "$CMAKE_ARGS -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
-    {% set cmake_tcm_args = "$CMAKE_ARGS" %}
+    {% set cmake_tcm_args = "$CMAKE_ARGS -DTCM_INSTALL_VARS=OFF" %}
     {% set cmake_tbb4py_args = "$CMAKE_ARGS -DTBB_DISABLE_HWLOC_AUTOMATIC_SEARCH=OFF -DTCM_BUILD=OFF" %}
 {% endif %}
 
@@ -79,7 +79,41 @@ outputs:
         - set CMAKE_GENERATOR_TOOLSET=   # [win].
         - cmake {{ cmake_tcm_args }} -DTCM_TEST=OFF -S thread_composability_manager -B build_tcm
         - cmake --build build_tcm --parallel
-        - cmake --install build_tcm
+        - cmake --install build_tcm --component runtime
+      ignore_run_exports:
+        - winpthreads-devel    # [win]
+        - winpthreads          # [win]
+        - libwinpthread        # [win]
+        - libxml2              # [not win]
+        - libxml2-16           # [not win]
+        - libxml2-devel        # [not win]
+    requirements:
+      build:
+        - {{ compiler('cxx') }}
+        - {{ stdlib("c") }}
+        - ninja                # [win]
+        - make                 # [not win]
+        - cmake
+      host:
+        - libhwloc >=2.5
+        - winpthreads-devel    # [win]
+        - libxml2-devel        # [not win]
+
+ - name: tcm-devel
+    version: {{ tcm_version }}
+    about:
+      summary: Thread Composability Manager (TCM)
+      license_file:
+        - thread_composability_manager/licensing/LICENSE.txt
+        - thread_composability_manager/licensing/third-party-programs.txt
+    build:
+      script:
+        - set CMAKE_GENERATOR=Ninja      # [win]
+        - set CMAKE_GENERATOR_PLATFORM=  # [win]
+        - set CMAKE_GENERATOR_TOOLSET=   # [win].
+        - cmake {{ cmake_tcm_args }} -DTCM_TEST=OFF -S thread_composability_manager -B build_tcm
+        - cmake --build build_tcm --parallel
+        - cmake --install build_tcm --component devel
       ignore_run_exports:
         - winpthreads-devel    # [win]
         - winpthreads          # [win]
@@ -135,7 +169,7 @@ outputs:
         - set CMAKE_GENERATOR_TOOLSET=   # [win]
         - cmake {{ cmake_args }} -DTBB_TEST=OFF -S . -B build
         - cmake --build build --parallel
-        - cmake -DCOMPONENT=runtime -P build/cmake_install.cmake
+        - cmake --install build --component runtime
       ignore_run_exports:
         # These libraries are only required for pkg_search_module to work correctly
         - winpthreads-devel    # [win]
@@ -176,7 +210,7 @@ outputs:
         - set CMAKE_GENERATOR_TOOLSET=   # [win]
         - cmake {{ cmake_args }} -DTBB_TEST=OFF -S . -B build
         - cmake --build build --parallel
-        - cmake -DCOMPONENT=devel -P build/cmake_install.cmake
+        - cmake --install build --component devel
       run_exports:
         - tbb >={{ version }}
       ignore_run_exports:
@@ -243,7 +277,7 @@ outputs:
         - cmake {{ cmake_tbb4py_args }} -DPython3_EXECUTABLE=$PYTHON -DPython3_ROOT_DIR=$PREFIX -DTBB4PY_BUILD=ON -DTBB_TEST=OFF -S . -B {{ tbb4py_build_dir }}  # [not win]
         - cmake {{ cmake_tbb4py_args }} -DPython3_EXECUTABLE=%PYTHON% -DPython3_ROOT_DIR=%PREFIX% -DTBB4PY_BUILD=ON -DTBB_TEST=OFF -S . -B {{ tbb4py_build_dir }}  # [win]
         - cmake --build {{ tbb4py_build_dir }} --target python_build --parallel
-        - cmake -DCOMPONENT=tbb4py -P {{ tbb4py_build_dir }}/cmake_install.cmake
+        - cmake --install {{ tbb4py_build_dir }} --component tbb4py
     requirements:
       build:
         - python                                 # [build_platform != target_platform]
