@@ -182,6 +182,14 @@ outputs:
         - libxml2-16           # [not win]
         - libxml2-devel        # [not win]
     requirements:
+      build:
+        - python *
+        - {{ compiler('cxx') }}
+        - {{ stdlib("c") }}
+        - ninja                # [win]
+        - make                 # [not win] 
+        - cmake >=3.13
+        - pkg-config
       host:
         - libhwloc
         - winpthreads-devel    # [win]
@@ -217,7 +225,13 @@ outputs:
       run_exports:
         - tbb >={{ version }}
       ignore_run_exports:
-        - libhwloc
+        # These libraries are only required for pkg_search_module to work correctly
+        - winpthreads-devel    # [win]
+        - winpthreads          # [win]
+        - libwinpthread        # [win]
+        - libxml2              # [not win]
+        - libxml2-16           # [not win]
+        - libxml2-devel        # [not win]
     requirements:
       build:
         - python *
