@@ -1,3 +1,16 @@
+From dcf934613166b22e8094f89f5f3badc06cc28b25 Mon Sep 17 00:00:00 2001
+From: "Isaev, Ilya" <ilya.isaev@intel.com>
+Date: Fri, 13 Nov 2026 10:26:57 +0100
+Subject: [PATCH] Assign component property to libraries, headers, vars
+
+Signed-off-by: Isaev, Ilya <ilya.isaev@intel.com>
+---
+ thread_composability_manager/CMakeLists.txt     |  1 +
+ thread_composability_manager/cmake/README.md    |  1 +
+ .../cmake/vars_utils.cmake                      |  1 +
+ thread_composability_manager/src/CMakeLists.txt | 17 +++++++++++++++--
+ 4 files changed, 18 insertions(+), 2 deletions(-)
+
 diff --git a/thread_composability_manager/CMakeLists.txt b/thread_composability_manager/CMakeLists.txt
 index 0530efbf..26eb64d1 100644
 --- a/thread_composability_manager/CMakeLists.txt
@@ -83,4 +96,5 @@ index 9d3484d4..b01b0d4a 100644
 +if (IS_TCM_STANDALONE AND TCM_GENERATE_VARS)
    tcm_generate_vars(tcm)
  endif()
- 
+-- 
+2.53.0
