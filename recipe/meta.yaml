@@ -100,7 +100,7 @@ outputs:
         - winpthreads-devel    # [win]
         - libxml2-devel        # [not win]
 
- - name: tcm-devel
+  - name: tcm-devel
     version: {{ tcm_version }}
     about:
       summary: Thread Composability Manager (TCM)
