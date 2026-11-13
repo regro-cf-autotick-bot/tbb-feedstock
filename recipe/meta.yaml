@@ -167,6 +167,10 @@ outputs:
         - third-party-programs.txt
     build:
       script:
+        - pkg-config --modversion hwloc || echo "hwloc not found by pkg-config" # [not win]
+        - echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" # [not win]
+        - which pkg-config # [not win]
+        - ls $PREFIX/lib/pkgconfig | grep hwloc # [not win]
         - set CMAKE_GENERATOR=Ninja      # [win]
         - set CMAKE_GENERATOR_PLATFORM=  # [win]
         - set CMAKE_GENERATOR_TOOLSET=   # [win]
