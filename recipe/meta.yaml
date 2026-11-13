@@ -133,6 +133,8 @@ outputs:
         - libhwloc >=2.5
         - winpthreads-devel    # [win]
         - libxml2-devel        # [not win]
+      run:
+        - {{ pin_subpackage('tcm', exact=True) }} 
     test:
       requires:
         - {{ compiler('cxx') }}
